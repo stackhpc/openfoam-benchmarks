@@ -1,0 +1,25 @@
+# Based on https://openfoam.org/download/10-linux/
+
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: Download launcher script
+      ansible.builtin.get_url:
+        url: http://dl.openfoam.org/docker/openfoam10-linux
+        dest: /usr/bin/openfoam10-linux
+        mode: u=rwx,go=rx
+      become: yes
+    - name: Create openfoam user directory
+      ansible.builtin.file:
+        state: directory
+        path: /home/rocky/OpenFOAM/{{ ansible_user }}-10
+      become: no
+    - name: Install other packages
+      ansible.builtin.dnf:
+        name:
+          - git
+      become: yes
+
+# THen to run:
+#   cd $HOME/OpenFOAM/${USER}-10
+#   openfoam10-linux

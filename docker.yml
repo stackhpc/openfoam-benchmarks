@@ -1,0 +1,32 @@
+- hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Install docker repo
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce-stable.repo
+    
+    - name: Install docker packages
+      ansible.builtin.dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+    
+    - name: Start docker
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: yes
+    
+    - name: Add user to docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+    
+    - name: Enable group
+      meta: reset_connection

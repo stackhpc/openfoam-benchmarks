@@ -1,0 +1,35 @@
+- hosts: all
+  become: no
+  gather_facts: yes
+  vars:
+    repo_dir: "/home/rocky/OpenFOAM/{{ ansible_user }}-10/hpc"
+    problem_size: S # M, or L
+    iterative_method: fixedNORM
+    parallelisation: threads # 'none', 'cores' or 'threads'
+  tasks:
+    - name: Download benchmark repo
+      ansible.builtin.git:
+        repo: https://develop.openfoam.com/committees/hpc.git
+        dest: "{{ repo_dir }}"
+      register: repo_clone
+      failed_when:
+        - repo_clone.failed
+        - not 'Local modifications exist in the destination' in repo_clone.msg
+    - name: Select configuration file
+      ansible.builtin.copy:
+        remote_src: yes
+        src: "{{ repo_dir }}/Lid_driven_cavity-3d/{{ problem_size }}/system/fvSolution.{{ iterative_method }}"
+        dest: "{{ repo_dir }}/Lid_driven_cavity-3d/{{ problem_size }}/system/fvSolution"
+    - name: Fix filename
+      ansible.builtin.command:
+        cmd: mv transportProperties physicalProperties
+        chdir: "{{ repo_dir }}/Lid_driven_cavity-3d/{{ problem_size }}/constant/"
+        creates: physicalProperties
+    - name: Configure parallel decomposition
+      ansible.builtin.lineinfile:
+        path: "{{ repo_dir }}/Lid_driven_cavity-3d/{{ problem_size }}/system/decomposeParDict"
+        regexp: '^numberOfSubdomains \\d+;'
+        line: "numberOfSubdomains {{ num_subdomains }};"
+      vars:
+        num_subdomains: "{{ ansible_processor_cores if parallelisation=='cores' else ansible_processor_nproc }}"
+      when: "parallelisation != 'none'"
