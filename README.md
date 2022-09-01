@@ -75,5 +75,5 @@ There are no options in playbooks except for `benchmark-3dcavity.yml` where you 
 # Timings
 
 On a 4x Broadwell VCPU / 4GB RAM VM, for problem size `S`, wallclock times were:
-- serial:
-- 4x threads: 60m40.243s
+- serial: 103m53s
+- 4x threads: 60m40.243s (~1.7x speedup)
