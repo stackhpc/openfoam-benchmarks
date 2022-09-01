@@ -51,7 +51,7 @@ There are no options in playbooks except for `benchmark-3dcavity.yml` where you 
 - `problem_size`: str `S`, (default) `M` or `L`.
 - `parallelisation`: str `threads` (default), `cores` or `none`.
 
-**Note**: I'm not sure `threads` will be fastest!
+**Note**: I'm not sure `threads` will be always be fastest!
 
 # Running the benchmark
 
@@ -77,3 +77,4 @@ There are no options in playbooks except for `benchmark-3dcavity.yml` where you 
 On a 4x Broadwell VCPU / 4GB RAM VM, for problem size `S`, wallclock times were:
 - serial: 103m53s
 - 4x threads: 60m40.243s (~1.7x speedup)
+- 2x cores: 65m53.078s (~1.6x speedup)
